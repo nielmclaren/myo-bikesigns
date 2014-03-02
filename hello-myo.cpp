@@ -10,6 +10,8 @@
 // The only file that needs to be included to use the Myo C++ SDK is myo.hpp.
 #include <myo.hpp>
 
+#include "SerialClass.h"
+
 // Classes that inherit from myo::DeviceListener can be used to receive events from Myo devices. DeviceListener
 // provides several virtual functions for handling different kinds of events. If you do not override an event, the
 // default behavior is to do nothing.
@@ -99,6 +101,18 @@ int main(int argc, char** argv)
 
 	std::cout << "Bike signs." << std::endl;
 
+	Serial* SP = new Serial("COM6");    // adjust as needed
+
+	if (SP->IsConnected()) {
+		std::cout << "Serial connected." << std::endl;
+	}
+
+	char incomingData[256] = "";			// don't forget to pre-allocate memory
+	//printf("%s\n",incomingData);
+	int dataLength = 256;
+	int readResult = 0;
+	std::string s;
+
     std::cout << "Attempting to find a Myo..." << std::endl;
 
     // Next, we try to find a Myo (any Myo) that's nearby and connect to it. waitForAnyMyo() takes a timeout
@@ -130,6 +144,34 @@ int main(int argc, char** argv)
         // After processing events, we call the print() member function we defined above to print out the values we've
         // obtained from any events that have occurred.
         collector.print();
+
+		if (SP->IsConnected()) {
+			if (collector.currentPose == myo::Pose::fist) {
+				if (collector.pitch_w < 5) {
+					s = "p4:1;p5:1;p6:0;";
+					SP->WriteData((char*)(s.c_str()), s.size());
+				}
+				else if (collector.roll_w > 3 && collector.roll_w < 7) {
+					s = "p4:0;p5:1;p6:1;";
+					SP->WriteData((char*)(s.c_str()), s.size());
+				}
+				else {
+					s = "p4:0;p5:0;p6:0;";
+					SP->WriteData((char*)(s.c_str()), s.size());
+				}
+			}
+			else {
+				s = "p4:0;p5:0;p6:0;";
+				SP->WriteData((char*)(s.c_str()), s.size());
+			}
+
+			while ((readResult = SP->ReadData(incomingData, dataLength)) != -1) {
+				printf("Bytes read: (-1 means no data available) %i\n", readResult);
+				std::string test(incomingData);
+				printf("%s", incomingData);
+				test = "";
+			}
+		}
     }
 
     // If a standard exception occurred, we print out its message and exit.
