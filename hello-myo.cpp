@@ -52,8 +52,12 @@ public:
 
 		if (currentPose == myo::Pose::fist) {
 			if (pitch_w < 5) {
-				// Vibrate the Myo whenever we've detected that the user has made a fist pump.
+				// Vibrate the Myo whenever we've detected a right turn signal.
 				myo->vibrate(myo::Myo::VibrationMedium);
+			}
+			else if (roll_w > 3 && roll_w < 7) {
+				// Vibrate the Myo whenever we've detected a left turn signal.
+				myo->vibrate(myo::Myo::VibrationShort);
 			}
 		}
 	}
