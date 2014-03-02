@@ -50,11 +50,13 @@ public:
     {
         currentPose = pose;
 
-        // Vibrate the Myo whenever we've detected that the user has made a fist.
-        if (pose == myo::Pose::fist) {
-            myo->vibrate(myo::Myo::VibrationMedium);
-        }
-    }
+		if (currentPose == myo::Pose::fist) {
+			if (pitch_w < 5) {
+				// Vibrate the Myo whenever we've detected that the user has made a fist pump.
+				myo->vibrate(myo::Myo::VibrationMedium);
+			}
+		}
+	}
 
     // There are other virtual functions in DeviceListener that we could override here, like onAccelerometerData().
     // For this example, the functions overridden above are sufficient.
@@ -90,6 +92,8 @@ int main(int argc, char** argv)
 
     // First, we create a Hub. The Hub provides access to one or more Myos.
     myo::Hub hub;
+
+	std::cout << "Bike signs." << std::endl;
 
     std::cout << "Attempting to find a Myo..." << std::endl;
 
