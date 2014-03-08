@@ -111,7 +111,8 @@ int main(int argc, char** argv)
 	//printf("%s\n",incomingData);
 	int dataLength = 256;
 	int readResult = 0;
-	std::string s;
+	std::string cmd;
+	std::string prevCmd;
 
     std::cout << "Attempting to find a Myo..." << std::endl;
 
@@ -148,21 +149,24 @@ int main(int argc, char** argv)
 		if (SP->IsConnected()) {
 			if (collector.currentPose == myo::Pose::fist) {
 				if (collector.pitch_w < 5) {
-					s = "p4:1;p5:1;p6:0;";
-					SP->WriteData((char*)(s.c_str()), s.size());
+					cmd = "p4:1;p5:1;p6:0;";
 				}
 				else if (collector.roll_w > 3 && collector.roll_w < 7) {
-					s = "p4:0;p5:1;p6:1;";
-					SP->WriteData((char*)(s.c_str()), s.size());
+					cmd = "p4:0;p5:1;p6:1;";
 				}
 				else {
-					s = "p4:0;p5:0;p6:0;";
-					SP->WriteData((char*)(s.c_str()), s.size());
+					cmd = "p4:0;p5:0;p6:0;";
 				}
 			}
 			else {
-				s = "p4:0;p5:0;p6:0;";
-				SP->WriteData((char*)(s.c_str()), s.size());
+				cmd = "p4:0;p5:0;p6:0;";
+			}
+
+			if (cmd != prevCmd) {
+				SP->WriteData((char*)(cmd.c_str()), cmd.size());
+				std::cout << cmd << std::endl;
+
+				prevCmd = cmd;
 			}
 
 			while ((readResult = SP->ReadData(incomingData, dataLength)) != -1) {
